@@ -1,15 +1,17 @@
 # tool-search-oss
 
-**Find the right MCP tool from 50+ without context collapse.**
+**Open-source, LLM-agnostic implementation of the "Tool Search" architectural pattern.**
 
-When an LLM has 50 MCP tools available, it loads all definitions into context — and promptly forgets most of them ([Lost in the Middle](https://arxiv.org/abs/2307.03172)). tool-search-oss solves this with a dead-simple pattern:
+Anthropic recently demonstrated ([Advanced Tool Use, Nov 2025](https://www.anthropic.com/engineering/advanced-tool-use)) that dynamically routing tools — instead of loading all definitions upfront — improves routing accuracy from **79.5% to 88.1%** on large tool catalogs. Their solution is locked behind Claude Code.
+
+`tool-search-oss` democratizes this pattern. Find the right MCP tool from 2000+ without context collapse, working locally with any LLM (Ollama, GPT-4o, Claude API, Gemini).
 
 ```
-Instead of:  LLM context = all 50 tool definitions (expensive)
+Instead of:  LLM context = all 50 tool definitions (expensive, sycophantic)
 With this:   LLM context = catalog_summary() + discover_tools("what I need") → top 5 only
 ```
 
-**82% context reduction · 96% routing accuracy · 5.5x faster TTFT · Measured on 50-tool catalog**
+**82% context reduction · 96% routing accuracy · 135x TTFT at 2000 tools · zero dependencies**
 
 ---
 
@@ -149,14 +151,18 @@ python3 python/benchmarks/bench_all.py
 
 ---
 
-## Architecture (Python)
+## Architecture (Strategy Pattern)
 
-```python
-BaseToolRouter (ABC)
-├── BM25ToolRouter       # v0.1 default — stdlib only, zero deps
-├── RegexToolRouter      # fast exact-match fallback
-├── CascadeToolRouter    # BM25 → Regex auto-fallback (recommended)
-└── VisualTopologyRouter # v0.2 planned — image-based routing
+```mermaid
+graph TD
+    A[LLM Intent] --> B(BaseToolRouter)
+    B --> C{v0.1: CascadeToolRouter}
+    C -->|Try first| D[BM25ToolRouter<br/>zero deps · stdlib only]
+    C -->|Fallback| E[RegexToolRouter<br/>exact match]
+    B --> F[v0.2: VisualTopologyRouter<br/>experimental]
+    D --> G[Top-K Tool Schemas]
+    E --> G
+    F -->|PNG Graph + Vision LLM| G
 ```
 
 ---
@@ -175,11 +181,25 @@ BaseToolRouter (ABC)
 
 ---
 
+## Origin & Philosophy
+
+This routing layer was originally extracted from the development of **[Verantyx](https://github.com/Ag3497120/verantyx-cli)** — a verification-centric AI IDE built around the principle that LLMs should not be trusted to reason freely about their own tool choices.
+
+While `tool-search-oss` uses text-based heuristics (BM25) as a pragmatic v0.1, the long-term goal of Verantyx is to build AI architectures that replace probabilistic LLM inference with deterministic external solvers and strict topological constraints — eliminating hallucination at the architectural level. The experimental `VisualTopologyRouter` in v0.2 is a stepping stone toward this vision: instead of asking the LLM to *guess* which tool to call, we render the dependency graph and let the vision encoder *see* the answer.
+
+---
+
 ## Why not just use embeddings?
 
 Embeddings require a model, a vector store, and inference time. BM25 requires nothing — no API, no GPU, no install. For tool search (short descriptions, exact terminology), BM25 matches or beats embeddings in practice.
 
 Add embeddings in v0.3 when you need semantic fuzzy matching.
+
+---
+
+## Disclaimer
+
+This project is an independent open-source initiative inspired by the "Tool Search" architectural pattern discussed by Anthropic. It is not affiliated with, endorsed by, or sponsored by Anthropic.
 
 ---
 
