@@ -1,0 +1,20 @@
+{
+  "name": "tool-search-oss",
+  "version": "0.1.0",
+  "description": "Open-source tool search for MCP — find the right tool from 50+ with BM25, no context collapse",
+  "type": "module",
+  "scripts": {
+    "start": "node --import tsx/esm src/server.ts",
+    "dev":   "npx tsx src/server.ts",
+    "test":  "npx tsx src/test.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  },
+  "devDependencies": {
+    "tsx": "*",
+    "typescript": "*"
+  },
+  "keywords": ["mcp", "tool-search", "llm", "context", "bm25", "routing"],
+  "license": "MIT"
+}
