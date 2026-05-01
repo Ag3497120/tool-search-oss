@@ -218,6 +218,15 @@ def build_server(tools: list[ToolSchema]) -> Server:
 async def main(tools: list[ToolSchema]) -> None:
     app = build_server(tools)
     async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
+        from mcp.server.models import InitializationOptions
+        from mcp.types import ServerCapabilities, ToolsCapability
+        try:
+            # MCP SDK >= 1.2: NotificationOptions required
+            from mcp.server.lowlevel.server import NotificationOptions
+            notification_options = NotificationOptions()
+        except ImportError:
+            notification_options = None  # older SDK
+
         await app.run(
             read_stream,
             write_stream,
@@ -225,7 +234,7 @@ async def main(tools: list[ToolSchema]) -> None:
                 server_name="tool-search-oss",
                 server_version="0.1.0",
                 capabilities=app.get_capabilities(
-                    notification_options=None,
+                    notification_options=notification_options,
                     experimental_capabilities={},
                 ),
             ),
