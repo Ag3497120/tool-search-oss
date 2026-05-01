@@ -112,13 +112,15 @@ Renders the tool catalog as a routing graph (PNG). LLM selects next tool from sp
 | **Without tool-search-oss** | 5,355 | — |
 | **With tool-search-oss** | 970 | **82% reduction** |
 
-### ② TTFT Improvement (Apple Silicon, local LLM)
+### ② TTFT Improvement (real Ollama measurement, Apple Silicon M-series)
 
-| Model | Without | With | Saved | Speedup |
+| Model | Without router | With router | Saved | Speedup |
 |---|---|---|---|---|
-| gemma-3-4b (4-bit) | 1785ms | 323ms | 1462ms | **5.5x** |
-| llama-3.1-8b (4-bit) | 2678ms | 485ms | 2192ms | **5.5x** |
-| gemma-3-12b (4-bit) | 4462ms | 808ms | 3654ms | **5.5x** |
+| gemma4:e2b (7B, 4-bit) | 675ms avg | 264ms avg | **411ms** | **2.6x** |
+| qwen2.5:1.5b (4-bit) | 259ms avg | 123ms avg | **137ms** | **2.1x** |
+
+> Context: 50 tools → top-3 only (13% of original prompt size)  
+> Measured with `bench_ttft_real.py` — reproduce with `python3 python/benchmarks/bench_ttft_real.py --model gemma4:e2b`
 
 ### ③ Routing Accuracy
 
