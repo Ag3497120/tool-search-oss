@@ -1,0 +1,28 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tool-search-oss"
+version = "0.1.0"
+description = "BM25 tool search for MCP — find the right tool from 50+ without context collapse"
+readme = "../README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+keywords = ["mcp", "tool-search", "llm", "bm25", "routing", "context"]
+
+dependencies = [
+    "mcp>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio"]
+
+[project.scripts]
+tool-search-oss = "tool_search_oss.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tool_search_oss"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
